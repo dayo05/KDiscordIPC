@@ -31,8 +31,8 @@ repositories {
 dependencies {
     implementation(kotlin("stdlib"))
 
-    implementation("com.google.code.gson:gson:2.8.7")
-    implementation("com.kohlschutter.junixsocket:junixsocket-core:2.3.3")
+    implementation("com.google.code.gson:gson:2.8.8")
+    implementation("com.kohlschutter.junixsocket:junixsocket-core:2.4.0")
 }
 
 tasks.withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
