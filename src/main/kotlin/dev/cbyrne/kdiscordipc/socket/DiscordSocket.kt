@@ -29,7 +29,6 @@ import dev.cbyrne.kdiscordipc.packet.pipeline.PacketToByteArrayEncoder
 import dev.cbyrne.kdiscordipc.packet.pipeline.RawPacketToPacketDecoder
 import dev.cbyrne.kdiscordipc.socket.impl.UnixSystemSocket
 import dev.cbyrne.kdiscordipc.socket.impl.WindowsSystemSocket
-import dev.cbyrne.kdiscordipc.util.readBytes
 import org.newsclub.net.unix.AFUNIXSocket
 import java.io.File
 import java.io.IOException
@@ -132,7 +131,7 @@ class DiscordSocket {
                 // to make sure the socket is still connected before reading bytes
                 if (!socket.isConnected) throw IllegalStateException("Socket disconnected while trying to read a packet.")
 
-                val bytes = readBytes(available())
+                val bytes = readAllBytes()
                 decoder.decode(bytes)
             } catch (t: Throwable) {
                 disconnect()

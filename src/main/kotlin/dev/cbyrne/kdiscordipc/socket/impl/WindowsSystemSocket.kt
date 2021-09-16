@@ -32,6 +32,12 @@ internal class WindowsSystemSocket : SystemSocket {
     override val inputStream: InputStream = object : InputStream() {
         override fun read(): Int = socket.read()
         override fun available(): Int = socket.length().toInt()
+        override fun readAllBytes(): ByteArray {
+            val array = ByteArray(available())
+            socket.readFully(array)
+
+            return array
+        }
     }
 
     override val outputStream: OutputStream = object : OutputStream() {
