@@ -131,7 +131,9 @@ class DiscordSocket {
                 // to make sure the socket is still connected before reading bytes
                 if (!socket.isConnected) throw IllegalStateException("Socket disconnected while trying to read a packet.")
 
-                val bytes = readAllBytes()
+                val bytes = ByteArray(available())
+                read(bytes, 0, available())
+
                 decoder.decode(bytes)
             } catch (t: Throwable) {
                 disconnect()
