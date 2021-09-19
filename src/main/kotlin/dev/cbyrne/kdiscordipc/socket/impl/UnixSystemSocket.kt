@@ -42,7 +42,7 @@ internal class UnixSystemSocket : SystemSocket {
     @Throws(SocketConnectionException::class)
     override fun connect(file: File) {
         try {
-            socket.connect(AFUNIXSocketAddress(file))
+            socket.connect(AFUNIXSocketAddress.of(file))
         } catch (t: Throwable) {
             throw SocketConnectionException(t.localizedMessage)
         }
