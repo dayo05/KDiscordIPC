@@ -166,7 +166,7 @@ class DiscordSocket {
      * If on a Unix system, "%tempdir%/discord-ipc-index" will be returned
      *
      * @throws IOException On unix if a temporary directory could not be found
-     * @see [getTempDir]
+     * @see [getDefaultTempDir]
      */
     @Throws(IOException::class)
     private fun getIpcFile(rpcIndex: Int): File {
@@ -175,18 +175,21 @@ class DiscordSocket {
         return if (platform.contains("win")) {
             File("\\\\?\\pipe\\discord-ipc-$rpcIndex")
         } else {
-            File(getTempDir(), "discord-ipc-${rpcIndex}")
+            val systemTempDir =
+                System.getenv("XDG_RUNTIME_DIR") ?: System.getenv("TMPDIR") ?: System.getenv("TMP")
+                ?: System.getenv("TEMP")
+
+            File(systemTempDir ?: getDefaultTempDir(), "discord-ipc-${rpcIndex}")
         }
     }
 
     /**
-     * Gets the temporary directory path for the system
+     * Gets the temporary directory path for the system.
+     * This should only be used if XDG_RUNTIME_DIR, TMPDIR, TMP or TEMP is not set.
      *
      * @see [File.createTempFile]
      * @throws IOException If the temporary file could not be created
      */
     @Throws(IOException::class)
-    private fun getTempDir(): String {
-        return File.createTempFile("kdiscordipc", "").parent
-    }
+    private fun getDefaultTempDir() = File.createTempFile("kdiscordipc", "").parent
 }
