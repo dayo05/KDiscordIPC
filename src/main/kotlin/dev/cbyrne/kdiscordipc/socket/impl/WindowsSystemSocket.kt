@@ -30,14 +30,19 @@ internal class WindowsSystemSocket : SystemSocket {
     private lateinit var socket: RandomAccessFile
 
     override val inputStream: InputStream = object : InputStream() {
-        override fun read(): Int = socket.read()
         override fun available(): Int = socket.length().toInt()
+        override fun close() = socket.close()
+
+        override fun read(): Int = socket.read()
+        override fun read(b: ByteArray) = socket.read(b)
+        override fun read(b: ByteArray, off: Int, len: Int) = socket.read(b, off, len)
     }
 
     override val outputStream: OutputStream = object : OutputStream() {
         override fun write(b: Int) = socket.write(b)
         override fun write(b: ByteArray) = socket.write(b)
         override fun write(b: ByteArray, off: Int, len: Int) = socket.write(b, off, len)
+        override fun close() = socket.close()
     }
 
     override var isConnected = false
