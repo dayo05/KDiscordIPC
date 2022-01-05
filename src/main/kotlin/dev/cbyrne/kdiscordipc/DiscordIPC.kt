@@ -42,6 +42,7 @@ import dev.cbyrne.kdiscordipc.socket.SocketListener
  * @param applicationId The ID of your application created on <a href=https://discordapp.com/developers/applications/me>the discord dev portal</a>.
  */
 class DiscordIPC(private var applicationId: String) : SocketListener, IPCListener {
+    @Suppress("unused")
     constructor(applicationId: Long) : this(applicationId.toString())
 
     /**
