@@ -26,6 +26,7 @@ import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.PacketDirection
 import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
 import dev.cbyrne.kdiscordipc.packet.impl.SetActivityPacket
+import dev.cbyrne.kdiscordipc.packet.impl.clientbound.ErrorPacket
 import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 import dev.cbyrne.kdiscordipc.presence.DiscordPresence
 import dev.cbyrne.kdiscordipc.socket.DiscordSocket
@@ -146,9 +147,7 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
         when (packet) {
             is DispatchPacket -> {
                 if (packet.event != null) {
-                    val event = DiscordEvent.from(packet.event, packet.eventData)
-
-                    when (event) {
+                    when (val event = DiscordEvent.from(packet.event, packet.eventData)) {
                         is DiscordEvent.Ready -> {
                             listener?.onReadyEvent(event)
                             this.onReadyEvent(event)
@@ -161,6 +160,10 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
                 } else if (packet.packetData["cmd"]?.equals("SET_ACTIVITY") == true) {
                     listener?.onPacket(SetActivityPacket(DiscordPresence.fromNative(packet.eventData)))
                 }
+            }
+            is ErrorPacket -> {
+                listener?.onError(packet.code, packet.message)
+                socket.disconnect()
             }
         }
 

@@ -26,7 +26,7 @@ import dev.cbyrne.kdiscordipc.presence.presence
 object IPCTest {
     @JvmStatic
     fun main(args: Array<String>) {
-        val ipc = DiscordIPC("857191688454537226")
+        val ipc = DiscordIPC(System.getProperty("application_id"))
 
         // When setting the presence before you connect, the presence will be set as soon as you connect!
         ipc.presence = presence {
@@ -38,7 +38,7 @@ object IPCTest {
 
         ipc.listener = object : IPCListener {
             /**
-             * Fired when [DiscordEvent.Ready] is received by the client
+             * Fired when [DiscordEvent.Ready] is received by the discord client
              * @param event A class containing all relevant info: user info, config, environment, etc.
              */
             override fun onReadyEvent(event: DiscordEvent.Ready) {
@@ -47,14 +47,21 @@ object IPCTest {
             }
 
             /**
-             * Fired when we are disconnected from the client
+             * Fired when an error was received from the discord client
              */
-            override fun onDisconnect(reason: String) {
-                println("[IPCTest] Disconnected from client! Reason: $reason")
+            override fun onError(code: Double, message: String) {
+                System.err.println("[IPCTest] Disconnected from the discord client because of an error! Code: $code, message: $message")
             }
 
             /**
-             * Fired when a packet is received from the client
+             * Fired when we are disconnected from the discord client
+             */
+            override fun onDisconnect(reason: String) {
+                println("[IPCTest] Disconnected from the discord client! Reason: $reason")
+            }
+
+            /**
+             * Fired when a packet is received from the discord client
              */
             override fun onPacket(packet: Packet) {
                 if (packet is SetActivityPacket) {

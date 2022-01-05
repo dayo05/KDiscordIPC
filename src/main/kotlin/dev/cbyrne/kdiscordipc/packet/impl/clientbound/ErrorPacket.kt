@@ -16,35 +16,18 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.listener
+package dev.cbyrne.kdiscordipc.packet.impl.clientbound
 
-import dev.cbyrne.kdiscordipc.DiscordIPC
-import dev.cbyrne.kdiscordipc.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.packet.Packet
+import dev.cbyrne.kdiscordipc.packet.PacketDirection
 
 /**
- * A listener used to listen for events dispatched by [DiscordIPC]
- * @see [DiscordIPC.onPacket]
+ * The packet which the client receives if an error has occurred when connecting to the server
  */
-interface IPCListener {
-    /**
-     * Fired when [DiscordEvent.Ready] is received from the discord client
-     * @param event A class containing all relevant info: user info, config, environment, etc.
-     */
-    fun onReadyEvent(event: DiscordEvent.Ready) {}
+class ErrorPacket(packetData: Map<String, Any>) : Packet {
+    override val opcode = 1
+    override val direction = PacketDirection.CLIENTBOUND
 
-    /**
-     * Fired when an error was received from the discord client
-     */
-    fun onError(code: Double, message: String) {}
-
-    /**
-     * Fired when we are disconnected from the discord client
-     */
-    fun onDisconnect(reason: String) {}
-
-    /**
-     * Fired when a packet is received from the discord client
-     */
-    fun onPacket(packet: Packet) {}
+    val code = packetData["code"] as Double? ?: error("Failed to parse packet: $packetData")
+    val message = packetData["message"] as String? ?: error("Failed to parse packet: $packetData")
 }

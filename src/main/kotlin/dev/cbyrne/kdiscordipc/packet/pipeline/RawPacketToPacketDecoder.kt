@@ -21,6 +21,7 @@ package dev.cbyrne.kdiscordipc.packet.pipeline
 import dev.cbyrne.kdiscordipc.packet.Packet
 import dev.cbyrne.kdiscordipc.packet.RawPacket
 import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.clientbound.ErrorPacket
 
 /**
  * A class which converts a [RawPacket] to a [Packet]
@@ -34,6 +35,7 @@ class RawPacketToPacketDecoder {
     fun decode(packet: RawPacket) =
         when (packet.opcode) {
             1 -> DispatchPacket(packet.data)
+            2 -> ErrorPacket(packet.data)
             else -> null
         }
 }
