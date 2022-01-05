@@ -16,9 +16,21 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet
+package dev.cbyrne.kdiscordipc.packet.handler.impl.both
 
-/**
- * A class representing a packet received by the client which has no type
- */
-data class RawPacket(val opcode: Int, val data: Map<String, Any>)
+import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
+import dev.cbyrne.kdiscordipc.packet.impl.both.DispatchPacket
+
+class DispatchPacketHandler : PacketHandler<DispatchPacket> {
+    override val opcode = 0x01
+    override val capabilities = setOf(PacketHandler.Capability.DECODE)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun decode(data: Map<String, Any>): DispatchPacket? {
+        val cmd = data["cmd"] as String? ?: return null
+        val evt = data["evt"] as String?
+        val packetData = data["data"] as Map<String, Any>? ?: return null
+
+        return DispatchPacket(cmd, evt, packetData)
+    }
+}

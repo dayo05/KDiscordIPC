@@ -16,11 +16,10 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl
+package dev.cbyrne.kdiscordipc.packet.impl.serverbound
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.PacketDirection
 import dev.cbyrne.kdiscordipc.presence.DiscordPresence
 import java.lang.management.ManagementFactory
 
@@ -30,13 +29,15 @@ import java.lang.management.ManagementFactory
  * @see DiscordPresence
  * @see DiscordIPC.presence
  */
-class SetActivityPacket(val presence: DiscordPresence?) : Packet {
-    private val processId = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
-
+class SetActivityPacket(val cmd: String, val args: Map<String, Any>) : Packet {
     override val opcode = 0x01
-    override val direction = PacketDirection.BOTH
-    override val data = mapOf(
-        "cmd" to "SET_ACTIVITY",
-        "args" to mapOf("pid" to processId, "activity" to presence?.toNativeJson())
+
+    constructor(presence: DiscordPresence) : this(
+        "SET_ACTIVITY",
+        mapOf("pid" to processId, "activity" to presence.toNativeJson())
     )
+
+    companion object {
+        private val processId = ManagementFactory.getRuntimeMXBean().name.split("@")[0].toInt()
+    }
 }

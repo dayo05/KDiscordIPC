@@ -16,26 +16,20 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.pipeline
+package dev.cbyrne.kdiscordipc.packet.handler.impl.clientbound
 
-import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.RawPacket
-import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
 import dev.cbyrne.kdiscordipc.packet.impl.clientbound.ErrorPacket
 
-/**
- * A class which converts a [RawPacket] to a [Packet]
- * @see [decode]
- */
-class RawPacketToPacketDecoder {
-    /**
-     * Converts a [RawPacket] to a [Packet]
-     * @returns a [Packet] instance if there is a wrapper available for this [RawPacket], otherwise null
-     */
-    fun decode(packet: RawPacket) =
-        when (packet.opcode) {
-            1 -> DispatchPacket(packet.data)
-            2 -> ErrorPacket(packet.data)
-            else -> null
-        }
+class ErrorPacketHandler : PacketHandler<ErrorPacket> {
+    override val opcode = 0x02
+    override val capabilities = setOf(PacketHandler.Capability.DECODE)
+
+    @Suppress("UNCHECKED_CAST")
+    override fun decode(data: Map<String, Any>): ErrorPacket? {
+        val code = data["code"] as Double? ?: return null
+        val message = data["message"] as String? ?: return null
+
+        return ErrorPacket(code, message)
+    }
 }

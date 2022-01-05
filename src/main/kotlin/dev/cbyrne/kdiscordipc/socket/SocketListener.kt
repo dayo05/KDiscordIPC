@@ -20,14 +20,9 @@ package dev.cbyrne.kdiscordipc.socket
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.pipeline.ByteArrayToRawPacketDecoder
-import dev.cbyrne.kdiscordipc.packet.pipeline.RawPacketToPacketDecoder
 
 /**
  * A listener used to handle packets which have been decoded by [DiscordSocket]
- *
- * @see ByteArrayToRawPacketDecoder
- * @see RawPacketToPacketDecoder
  */
 interface SocketListener {
     /**

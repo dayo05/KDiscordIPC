@@ -16,23 +16,29 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl
+package dev.cbyrne.kdiscordipc.packet.handler
 
-import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.PacketDirection
 
 /**
- * A packet which is received by the client when an event is being dispatched
- * This packet could also be mistakenly parsed as a [SetActivityPacket], as the client will relay our packets back to us after the initial handshake.
+ * A class responsible for the encoding and decoding of packets
  *
- * @see DiscordIPC.onPacket
+ * @see dev.cbyrne.kdiscordipc.packet.factory.PacketFactory
  */
-@Suppress("UNCHECKED_CAST")
-class DispatchPacket(val packetData: Map<String, Any>) : Packet {
-    override val opcode = 1
-    override val direction = PacketDirection.BOTH
+interface PacketHandler<T: Packet> {
+    val opcode: Int
+    val capabilities: Set<Capability>
 
-    val event = packetData["evt"] as String?
-    val eventData = packetData["data"] as Map<String, Any>
+    fun encode(packet: T): Map<*, *>? {
+        return null
+    }
+
+    fun decode(data: Map<String, Any>): T? {
+        return null
+    }
+
+    enum class Capability {
+        ENCODE,
+        DECODE,
+    }
 }

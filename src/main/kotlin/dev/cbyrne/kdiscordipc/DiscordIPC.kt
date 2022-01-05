@@ -23,9 +23,8 @@ import dev.cbyrne.kdiscordipc.exceptions.SocketConnectionException
 import dev.cbyrne.kdiscordipc.exceptions.SocketDisconnectionException
 import dev.cbyrne.kdiscordipc.listener.IPCListener
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.PacketDirection
-import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
-import dev.cbyrne.kdiscordipc.packet.impl.SetActivityPacket
+import dev.cbyrne.kdiscordipc.packet.impl.both.DispatchPacket
+import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
 import dev.cbyrne.kdiscordipc.packet.impl.clientbound.ErrorPacket
 import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 import dev.cbyrne.kdiscordipc.presence.DiscordPresence
@@ -118,13 +117,9 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
      * @see HandshakePacket
      * @param packet The packet to send
      *
-     * @throws IllegalStateException If the socket is not connected yet, or if the packet is of the wrong [PacketDirection]
-     * @see PacketDirection
+     * @throws IllegalStateException If the socket is not connected yet
      */
     fun sendPacket(packet: Packet) {
-        if (packet.direction == PacketDirection.CLIENTBOUND)
-            throw IllegalStateException("You can not send a clientbound packet to the server!")
-
         socket.send(packet)
     }
 
@@ -148,7 +143,7 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
         when (packet) {
             is DispatchPacket -> {
                 if (packet.event != null) {
-                    when (val event = DiscordEvent.from(packet.event, packet.eventData)) {
+                    when (val event = DiscordEvent.from(packet.event, packet.data)) {
                         is DiscordEvent.Ready -> {
                             listener?.onReadyEvent(event)
                             this.onReadyEvent(event)
@@ -158,8 +153,6 @@ class DiscordIPC(private var applicationId: String) : SocketListener, IPCListene
                             listener?.onDisconnect(event.message)
                         }
                     }
-                } else if (packet.packetData["cmd"]?.equals("SET_ACTIVITY") == true) {
-                    listener?.onPacket(SetActivityPacket(DiscordPresence.fromNative(packet.eventData)))
                 }
             }
             is ErrorPacket -> {

@@ -18,19 +18,6 @@
 
 package dev.cbyrne.kdiscordipc.packet
 
-import dev.cbyrne.kdiscordipc.packet.impl.DispatchPacket
-import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
-
-/**
- * An interface which all clientbound and serverbound packets will implement
- *
- * @see DispatchPacket
- * @see HandshakePacket
- */
 interface Packet {
     val opcode: Int
-    val direction: PacketDirection
-
-    val data: Map<String, Any>
-        get() = mapOf()
 }

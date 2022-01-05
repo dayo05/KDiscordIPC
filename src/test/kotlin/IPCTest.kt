@@ -20,7 +20,6 @@ import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.event.DiscordEvent
 import dev.cbyrne.kdiscordipc.listener.IPCListener
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.impl.SetActivityPacket
 import dev.cbyrne.kdiscordipc.presence.presence
 
 object IPCTest {
@@ -64,9 +63,7 @@ object IPCTest {
              * Fired when a packet is received from the discord client
              */
             override fun onPacket(packet: Packet) {
-                if (packet is SetActivityPacket) {
-                    println("[IPCTest] Received echoed SetActivity packet: ${packet.presence}")
-                }
+                println("[IPCTest] Received echoed packet: $packet")
             }
         }
 

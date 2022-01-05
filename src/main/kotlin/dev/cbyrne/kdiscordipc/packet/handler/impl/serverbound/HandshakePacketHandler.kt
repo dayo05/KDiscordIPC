@@ -16,16 +16,15 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.impl.clientbound
+package dev.cbyrne.kdiscordipc.packet.handler.impl.serverbound
 
-import dev.cbyrne.kdiscordipc.packet.Packet
+import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
+import dev.cbyrne.kdiscordipc.packet.impl.serverbound.HandshakePacket
 
-/**
- * The packet which the client receives if an error has occurred when connecting to the server
- */
-class ErrorPacket(
-    val code: Double,
-    val message: String
-) : Packet {
-    override val opcode = 0x02
+class HandshakePacketHandler : PacketHandler<HandshakePacket> {
+    override val opcode = 0x00
+    override val capabilities = setOf(PacketHandler.Capability.ENCODE)
+
+    override fun encode(packet: HandshakePacket) =
+        mapOf("v" to packet.version, "client_id" to packet.clientId)
 }

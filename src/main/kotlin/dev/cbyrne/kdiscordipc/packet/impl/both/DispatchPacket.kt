@@ -16,14 +16,24 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet
+package dev.cbyrne.kdiscordipc.packet.impl.both
+
+import dev.cbyrne.kdiscordipc.DiscordIPC
+import dev.cbyrne.kdiscordipc.gson.toJson
+import dev.cbyrne.kdiscordipc.packet.Packet
 
 /**
- * An enum representing the direction of a specific packet
- *
+ * A packet which is received by the client when an event is being dispatched
+ * @see DiscordIPC.onPacket
  */
-enum class PacketDirection {
-    CLIENTBOUND,
-    SERVERBOUND,
-    BOTH
+class DispatchPacket(
+    val command: String,
+    val event: String?,
+    val data: Map<String, Any>
+) : Packet {
+    override val opcode = 0x01
+
+    override fun toString(): String {
+        return mapOf("cmd" to command, "event" to (event ?: "null"), "data" to data).toJson() ?: "{}"
+    }
 }

@@ -20,15 +20,15 @@ package dev.cbyrne.kdiscordipc.packet.impl.serverbound
 
 import dev.cbyrne.kdiscordipc.DiscordIPC
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.PacketDirection
 
 /**
  * The packet which will start the connection between the client and our socket
  *
  * @see DiscordIPC.connect
  */
-class HandshakePacket(clientId: String, version: Int = 1) : Packet {
-    override val opcode = 0x00
-    override val direction = PacketDirection.SERVERBOUND
-    override val data = mapOf("v" to version, "client_id" to clientId)
+class HandshakePacket(
+    val clientId: String,
+    val version: Int = 1
+) : Packet {
+    override val opcode = 0
 }

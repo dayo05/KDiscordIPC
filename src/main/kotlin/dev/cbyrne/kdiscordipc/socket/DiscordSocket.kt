@@ -23,10 +23,7 @@ package dev.cbyrne.kdiscordipc.socket
 import dev.cbyrne.kdiscordipc.exceptions.SocketConnectionException
 import dev.cbyrne.kdiscordipc.exceptions.SocketDisconnectionException
 import dev.cbyrne.kdiscordipc.packet.Packet
-import dev.cbyrne.kdiscordipc.packet.RawPacket
-import dev.cbyrne.kdiscordipc.packet.pipeline.ByteArrayToRawPacketDecoder
-import dev.cbyrne.kdiscordipc.packet.pipeline.PacketToByteArrayEncoder
-import dev.cbyrne.kdiscordipc.packet.pipeline.RawPacketToPacketDecoder
+import dev.cbyrne.kdiscordipc.packet.factory.PacketFactory
 import dev.cbyrne.kdiscordipc.socket.impl.UnixSystemSocket
 import dev.cbyrne.kdiscordipc.socket.impl.WindowsSystemSocket
 import org.newsclub.net.unix.AFUNIXSocket
@@ -49,18 +46,13 @@ class DiscordSocket {
             UnixSystemSocket()
         }
 
-    private val encoder = PacketToByteArrayEncoder()
-    private val decoder = ByteArrayToRawPacketDecoder()
-    private val packetDecoder = RawPacketToPacketDecoder()
+    private val factory = PacketFactory()
 
     val isConnected: Boolean
         get() = socket.isConnected
 
     /**
      * The listener which will handle packets once they are decoded
-     *
-     * @see ByteArrayToRawPacketDecoder
-     * @see RawPacketToPacketDecoder
      */
     var listener: SocketListener? = null
 
@@ -76,7 +68,8 @@ class DiscordSocket {
 
         thread(start = true) {
             while (isConnected) {
-                listener?.onPacket(readPacket())
+                val packet = readPacket() ?: error("Failed to read packet!")
+                listener?.onPacket(packet)
             }
         }
     }
@@ -101,7 +94,7 @@ class DiscordSocket {
         if (!socket.isConnected) throw IllegalStateException("You must connect to the socket before sending packets")
 
         socket.outputStream?.apply {
-            val encodedPacket = encoder.encode(packet)
+            val encodedPacket = factory.encode(packet) ?: throw IllegalStateException("Failed to send $packet")
 
             try {
                 write(encodedPacket)
@@ -113,12 +106,9 @@ class DiscordSocket {
     }
 
     /**
-     * Reads a [RawPacket] from the socket's InputStream
-     * @return A [RawPacket] instance containing the packet data
-     * @see ByteArrayToRawPacketDecoder
+     * Reads a [Packet] via the input stream
      */
-    @Suppress("StatementWithEmptyBody")
-    private fun readRawPacket(): RawPacket? {
+    private fun readPacket(): Packet? {
         if (!socket.isConnected) throw IllegalStateException("You must connect to the socket before reading packets")
 
         socket.inputStream?.apply {
@@ -134,7 +124,7 @@ class DiscordSocket {
                 val bytes = ByteArray(available())
                 read(bytes, 0, available())
 
-                decoder.decode(bytes)
+                factory.decode(bytes)
             } catch (t: Throwable) {
                 disconnect()
                 listener?.onSocketClosed(t.localizedMessage)
@@ -147,19 +137,6 @@ class DiscordSocket {
     }
 
     /**
-     * Decodes a [RawPacket] to a [Packet] via [RawPacketToPacketDecoder]
-     *
-     * @see RawPacketToPacketDecoder
-     * @see connect
-     * @see readRawPacket
-     */
-    private fun readPacket(): Packet {
-        val rawPacket = readRawPacket() ?: throw IllegalStateException("Failed to read raw packet")
-        return packetDecoder.decode(rawPacket)
-            ?: throw IllegalStateException("Received unknown packet ${rawPacket.opcode} with data ${rawPacket.data}")
-    }
-
-    /**
      * Returns a path to the IPC socket depending on the platform
      *
      * If on Windows, "\\?\pipe\discord-ipc-index" will always be returned
@@ -168,6 +145,7 @@ class DiscordSocket {
      * @throws IOException On unix if a temporary directory could not be found
      * @see [getDefaultTempDir]
      */
+    @Suppress("SameParameterValue")
     @Throws(IOException::class)
     private fun getIpcFile(rpcIndex: Int): File {
         val platform = System.getProperty("os.name").lowercase()

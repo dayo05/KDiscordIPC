@@ -16,24 +16,19 @@
  *     along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-package dev.cbyrne.kdiscordipc.packet.pipeline
+package dev.cbyrne.kdiscordipc.packet.handler.impl.serverbound
 
-import dev.cbyrne.kdiscordipc.gson.fromJson
-import dev.cbyrne.kdiscordipc.packet.RawPacket
-import java.nio.ByteBuffer
+import dev.cbyrne.kdiscordipc.packet.handler.PacketHandler
+import dev.cbyrne.kdiscordipc.packet.impl.serverbound.SetActivityPacket
+import java.util.*
 
-/**
- * A class which decodes a [ByteArray] to a [RawPacket]
- */
-class ByteArrayToRawPacketDecoder {
-    /**
-     * Decodes a [ByteArray] to a [RawPacket]
-     * @param array The bytes to decode
-     */
-    fun decode(array: ByteArray): RawPacket {
-        val opcode = Integer.reverseBytes(ByteBuffer.wrap(array.take(8).toByteArray()).int)
-        val data = array.takeLast(array.size - 8).toByteArray().decodeToString()
+class SetActivityPacketHandler : PacketHandler<SetActivityPacket> {
+    override val opcode = 0x01
+    override val capabilities = setOf(PacketHandler.Capability.ENCODE)
 
-        return RawPacket(opcode, data.fromJson())
+    override fun encode(packet: SetActivityPacket): Map<*, *> {
+        return mutableMapOf(
+            "cmd" to packet.cmd, "args" to packet.args, "nonce" to UUID.randomUUID().toString()
+        )
     }
 }
