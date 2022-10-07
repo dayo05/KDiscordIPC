@@ -1,11 +1,12 @@
 package dev.cbyrne.kdiscordipc.core.packet.outbound
 
 import dev.cbyrne.kdiscordipc.core.packet.serialization.OutboundPacketSerializer
+import dev.cbyrne.kdiscordipc.core.validation.Validated
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable(with = OutboundPacketSerializer::class)
-abstract class OutboundPacket {
+abstract class OutboundPacket : Validated {
     abstract val opcode: Int
 
     @SerialName("cmd")
@@ -17,7 +18,11 @@ abstract class OutboundPacket {
     abstract var nonce: String
 
     @Serializable
-    open class Arguments
+    open class Arguments : Validated {
+        override fun validate() = true
+    }
+
+    override fun validate() = true
 }
 
 @Serializable
