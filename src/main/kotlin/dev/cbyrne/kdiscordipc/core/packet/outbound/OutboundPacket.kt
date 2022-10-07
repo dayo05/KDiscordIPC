@@ -19,10 +19,10 @@ abstract class OutboundPacket : Validated {
 
     @Serializable
     open class Arguments : Validated {
-        override fun validate() = true
+        override fun validate() {}
     }
 
-    override fun validate() = true
+    override fun validate() {}
 }
 
 @Serializable

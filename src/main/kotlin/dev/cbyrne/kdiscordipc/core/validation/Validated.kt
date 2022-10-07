@@ -5,10 +5,8 @@ package dev.cbyrne.kdiscordipc.core.validation
  */
 interface Validated {
     /**
-     * This should return true or false, based on if your class' data is valid or not (i.e. it shouldn't cause any
-     * issues when sent to Discord).
-     *
+     * This should throw an exception if your class' data is not valid (i.e. it wouldn't be accepted by Discord).
      * If you have any child [Validated] objects, you should call their [validate] method.
      */
-    fun validate(): Boolean
+    fun validate()
 }

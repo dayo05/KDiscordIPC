@@ -21,6 +21,7 @@ import dev.cbyrne.kdiscordipc.core.packet.pipeline.MessageToByteEncoder
 import dev.cbyrne.kdiscordipc.core.socket.Socket
 import dev.cbyrne.kdiscordipc.core.socket.SocketProvider
 import dev.cbyrne.kdiscordipc.core.socket.handler.SocketHandler
+import dev.cbyrne.kdiscordipc.core.validation.ValidationException
 import dev.cbyrne.kdiscordipc.manager.impl.ActivityManager
 import dev.cbyrne.kdiscordipc.manager.impl.ApplicationManager
 import dev.cbyrne.kdiscordipc.manager.impl.RelationshipManager
@@ -126,8 +127,10 @@ class KDiscordIPC(
     }
 
     private suspend fun writePacket(packet: OutboundPacket, nonce: String? = null) {
-        if (!packet.validate()) {
-            error("Invalid ${packet}!")
+        try {
+            packet.validate()
+        } catch (e: ValidationException) {
+            error("Invalid packet (${packet.opcode}: ${packet.cmd}): ${e.reason}")
         }
 
         val bytes = MessageToByteEncoder.encode(packet, nonce)

@@ -19,7 +19,10 @@ data class SetActivityPacket(
         val pid: Long,
         val activity: Activity?
     ) : OutboundPacket.Arguments() {
-        override fun validate() = pid.validate() && activity.validate()
+        override fun validate() {
+            pid.validate()
+            activity.validate()
+        }
     }
 
     override fun validate() = args.validate()
