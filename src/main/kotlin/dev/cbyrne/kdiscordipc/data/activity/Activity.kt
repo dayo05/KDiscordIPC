@@ -2,6 +2,8 @@
 
 package dev.cbyrne.kdiscordipc.data.activity
 
+import dev.cbyrne.kdiscordipc.core.util.validate
+import dev.cbyrne.kdiscordipc.core.validation.Validated
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -20,12 +22,24 @@ data class Activity(
     var secrets: Secrets? = null,
     var buttons: MutableList<Button>? = null,
     var instance: Boolean? = false
-) {
+) : Validated {
+    override fun validate() =
+        details.validate()
+            && state.validate()
+            && timestamps.validate()
+            && assets.validate()
+            && secrets.validate()
+            && buttons.validate()
+            && (if (buttons != null) secrets == null else true) // Secrets cannot currently be sent with buttons
+
     @Serializable
     data class Timestamps(
         var start: Long,
         var end: Long?
-    )
+    ) : Validated {
+        override fun validate() =
+            start.validate() && end.validate()
+    }
 
     @Serializable
     data class Assets(
@@ -37,13 +51,16 @@ data class Activity(
         var smallImage: String? = null,
         @SerialName("small_text")
         var smallText: String? = null
-    )
+    ) : Validated {
+        override fun validate() =
+            largeImage.validate() && largeText.validate() && smallImage.validate() && smallText.validate()
+    }
 
     @Serializable
     data class Party(
         var id: String,
         var size: PartySize
-    ) {
+    ) : Validated {
         @Serializable(with = PartySize.PartySizeSerializer::class)
         data class PartySize(
             var currentSize: Int,
@@ -68,6 +85,8 @@ data class Activity(
                 }
             }
         }
+
+        override fun validate() = id.validate()
     }
 
     @Serializable
@@ -75,13 +94,19 @@ data class Activity(
         var join: String? = null,
         var match: String? = null,
         var spectate: String? = null
-    )
+    ) : Validated {
+        override fun validate() =
+            join.validate() && match.validate() && spectate.validate()
+    }
 
     @Serializable
     data class Button(
         var label: String,
         var url: String
-    )
+    ) : Validated {
+        override fun validate() =
+            label.validate() && url.validate()
+    }
 }
 
 fun activity(

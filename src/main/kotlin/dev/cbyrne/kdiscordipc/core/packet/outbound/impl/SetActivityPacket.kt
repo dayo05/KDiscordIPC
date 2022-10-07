@@ -1,6 +1,7 @@
 package dev.cbyrne.kdiscordipc.core.packet.outbound.impl
 
 import dev.cbyrne.kdiscordipc.core.packet.outbound.OutboundPacket
+import dev.cbyrne.kdiscordipc.core.util.validate
 import dev.cbyrne.kdiscordipc.data.activity.Activity
 import kotlinx.serialization.Serializable
 
@@ -17,5 +18,9 @@ data class SetActivityPacket(
     data class Arguments(
         val pid: Long,
         val activity: Activity?
-    ) : OutboundPacket.Arguments()
+    ) : OutboundPacket.Arguments() {
+        override fun validate() = pid.validate() && activity.validate()
+    }
+
+    override fun validate() = args.validate()
 }
