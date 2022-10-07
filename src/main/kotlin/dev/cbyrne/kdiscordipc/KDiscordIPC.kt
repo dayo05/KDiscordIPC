@@ -126,6 +126,10 @@ class KDiscordIPC(
     }
 
     private suspend fun writePacket(packet: OutboundPacket, nonce: String? = null) {
+        if (!packet.validate()) {
+            error("Invalid ${packet}!")
+        }
+
         val bytes = MessageToByteEncoder.encode(packet, nonce)
         socketHandler.write(bytes)
     }
